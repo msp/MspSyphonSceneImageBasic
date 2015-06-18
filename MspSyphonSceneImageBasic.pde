@@ -6,30 +6,40 @@ import SimpleOpenNI.*;
 import codeanticode.syphon.*;
 
 SyphonServer server;
+SyphonServer server2;
 SimpleOpenNI  kinect;
 PGraphics VDMXCanvas;
+PGraphics VDMXCanvas2;
 
-PImage  userImage;
-int userID;
 int[] userMap;
 
 PImage rgbImage;
 void setup() {
   size(640, 480, P3D);
-  VDMXCanvas = createGraphics(this.g.width, this.g.height, P3D);
+  VDMXCanvas   = createGraphics(this.g.width, this.g.height, P3D);
+  VDMXCanvas2  = createGraphics(this.g.width, this.g.height, P3D);
 
   kinect = new SimpleOpenNI(this);
   kinect.enableDepth();
   kinect.enableUser();
+  kinect.enableRGB();
   
   // Create syhpon server to send frames out.
-  server = new SyphonServer(this, "Processing Syphon");
+  server  = new SyphonServer(this, "Processing Syphon");
+  server2 = new SyphonServer(this, "Processing Syphon 2");
 }
 
 void draw() {
   background(0);
   kinect.update();
   
+  detectAndColourUsers();  
+  sendRGBCameraToVDMX(); 
+  sendBuiltInCanvasToVDMX();
+  // image(VDMXCanvas2, 0, 0);
+}
+
+void detectAndColourUsers() {
   // detect any users
   int[] userList = kinect.getUsers();  
   //println("users: "+userList.length);
@@ -51,20 +61,27 @@ void draw() {
       updatePixels();        
     }    
   }
-   
-  copyBuiltInCanvasToVDMX();
-  //image(this.g, 0, 0);
 }
-void copyBuiltInCanvasToVDMX() {
+
+void sendRGBCameraToVDMX() {
+  VDMXCanvas2.beginDraw();
+  VDMXCanvas2.image(kinect.rgbImage(), 0, 0);
+  VDMXCanvas2.stroke(255);
+  VDMXCanvas2.line(20, 20, random(width), random(height));
+  VDMXCanvas2.endDraw();
+  
+  server2.sendImage(VDMXCanvas2);
+}
+
+void sendBuiltInCanvasToVDMX() {
   VDMXCanvas.loadPixels(); 
   arrayCopy(this.g.pixels, VDMXCanvas.pixels); 
   VDMXCanvas.updatePixels();
  
-  server.sendImage(VDMXCanvas); 
+  server.sendImage(VDMXCanvas);   
 }
 
 void onNewUser(int uID) {
-  userID = uID;
-  println("tracking");
+  println("tracking "+uID);
 }
 
