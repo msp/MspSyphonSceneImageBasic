@@ -36,7 +36,7 @@ void draw() {
   detectAndColourUsers();  
   sendRGBCameraToVDMX(); 
   sendBuiltInCanvasToVDMX();
-  // image(VDMXCanvas2, 0, 0);
+  image(VDMXCanvas, 0, height/2);
 }
 
 void detectAndColourUsers() {
@@ -74,8 +74,12 @@ void sendRGBCameraToVDMX() {
 }
 
 void sendBuiltInCanvasToVDMX() {
-  VDMXCanvas.loadPixels(); 
-  arrayCopy(this.g.pixels, VDMXCanvas.pixels); 
+//  VDMXCanvas.beginDraw();
+//  VDMXCanvas.image(kinect.depthImage(), 0, 0);
+//  VDMXCanvas.endDraw();
+
+  VDMXCanvas.loadPixels();
+  arrayCopy(this.g.pixels, VDMXCanvas.pixels);
   VDMXCanvas.updatePixels();
  
   server.sendImage(VDMXCanvas);   
